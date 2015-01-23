@@ -1,0 +1,138 @@
+     1                                  ;==== Begin code area ====
+     2                                  extern _printf                                       ;External C function for output
+     3                                  extern _scanf                                        ;External C function for input
+     4                                  extern _sin                                          ;External C function for sin math function
+     5                                  
+     6                                  segment .data                                       ;Place initialized data in this segment
+     7                                  
+     8 00000000 25730A00                    stringData db "%s", 10, 0
+     9 00000004 456E74657220746865-         input1 db "Enter the length of one side of the parallelogram: ", 0
+    10 0000000D 206C656E677468206F-
+    11 00000016 66206F6E6520736964-
+    12 0000001F 65206F662074686520-
+    13 00000028 706172616C6C656C6F-
+    14 00000031 6772616D3A2000     
+    15 00000038 456E74657220746865-         input2 db "Enter the length of the second side of the parallelogram: ", 0
+    16 00000041 206C656E677468206F-
+    17 0000004A 662074686520736563-
+    18 00000053 6F6E64207369646520-
+    19 0000005C 6F6620746865207061-
+    20 00000065 72616C6C656C6F6772-
+    21 0000006E 616D3A2000         
+    22 00000073 456E74657220746865-         input3 db "Enter the size in degrees of the included angle: ", 0
+    23 0000007C 2073697A6520696E20-
+    24 00000085 64656772656573206F-
+    25 0000008E 662074686520696E63-
+    26 00000097 6C7564656420616E67-
+    27 000000A0 6C653A2000         
+    28                                  
+    29 000000A5 596F7520656E746572-         floatOutput db "You entered: %5.2Lf", 0         ;Don't forget the uppercase L
+    30 000000AE 65643A2025352E324C-
+    31 000000B7 6600               
+    32                                  
+    33 000000B9 254C6600                    floatData db "%Lf", 0
+    34                                  
+    35                                  segment .bss                                        ;Place uninitialized data in this segment
+    36                                  
+    37                                      ;Currently this section is empty
+    38                                  
+    39                                  segment .text                                       ;Place executable statements in this segment
+    40                                  
+    41                                      global _CalTrapArea
+    42                                  
+    43                                  _CalTrapArea:                                       ;Entry Point Label.
+    44                                  
+    45                                  ;==== Necessary Operations! Do not remove!
+    46 00000000 55                          push        rbp                                 ;Save a copy of the stack base pointer !IMPORTANT
+    47 00000001 57                          push        rdi                                 ;Save since we will use this for our external printf function
+    48 00000002 56                          push        rsi                                 ;Save since we will use this for our external printf function
+    49                                  
+    50                                  ;==== Enable Floating Point Operations
+    51 00000003 9BDBE3                      finit                                           ;Reset pointers to st registers; reset control word, status word, and tag word.
+    52                                  
+    53                                  ;============ INPUT 1 ==============
+    54                                  ;==== Ask for first input
+    55 00000006 B800000000                  mov qword   rax, 0                              ;A zero in rax indicates that printf receives standard parameters
+    56 0000000B 48BF-                       mov         rdi, stringData
+    57 0000000D [0000000000000000] 
+    58 00000015 48BE-                       mov         rsi, input1
+    59 00000017 [0400000000000000] 
+    60 0000001F E8(00000000)                call        _printf
+    61                                  
+    62                                  ;==== Grab input from Keyboard
+    63 00000024 B800000000                  mov qword  rax, 0                               ;A zero in rax indicates that printf receives standard parameters
+    64 00000029 48BF-                       mov        rdi, floatData                       ;Tell scanf to accept a long float as the data input
+    65 0000002B [B900000000000000] 
+    66 00000033 6A00                        push qword 0                                    ;8 byes reserved. Need 10 bytes
+    67 00000035 6A00                        push qword 0                                    ;Another 8 bytes reserved for a total of 16 bytes
+    68 00000037 4889E6                      mov        rsi, rsp                             ;rsi now points to the 16 bytes we have open. (rsp = Stack Pointer)
+    69 0000003A E8(00000000)                call       _scanf                                ;C now uses the scanf function
+    70                                  
+    71                                  ;==== Copy 10 byte number into Float space
+    72 0000003F DB2C24                      fld tword  [rsp]                                ;Load Float space and push rsp into the float stack. (braquests de-reference)
+    73                                  
+    74                                  ;============ INPUT 2 ==============
+    75                                  ;=== Ask for second input
+    76 00000042 B800000000                  mov qword   rax, 0                              ;A zero in rax indicates that printf receives standard parameters
+    77 00000047 48BF-                       mov         rdi, stringData
+    78 00000049 [0000000000000000] 
+    79 00000051 48BE-                       mov         rsi, input2
+    80 00000053 [3800000000000000] 
+    81 0000005B E8(00000000)                call        _printf
+    82                                  
+    83                                  ;==== Grab input from Keyboard
+    84 00000060 B800000000                  mov qword  rax, 0                               ;A zero in rax indicates that printf receives standard parameters
+    85 00000065 48BF-                       mov        rdi, floatData                       ;Tell scanf to accept a long float as the data input
+    86 00000067 [B900000000000000] 
+    87 0000006F 6A00                        push qword 0                                    ;8 byes reserved. Need 10 bytes
+    88 00000071 6A00                        push qword 0                                    ;Another 8 bytes reserved for a total of 16 bytes
+    89 00000073 4889E6                      mov        rsi, rsp                             ;rsi now points to the 16 bytes we have open. (rsp = Stack Pointer)
+    90 00000076 E8(00000000)                call       _scanf                                ;C now uses the scanf function
+    91                                  
+    92                                  ;==== Copy 10 byte number into Float space
+    93 0000007B DB2C24                      fld tword  [rsp]                                ;Load Float space and push rsp into the float stack. (braquests de-reference)
+    94                                  
+    95                                  ;============ INPUT 3 ==============
+    96                                  ;=== Ask for third input
+    97 0000007E B800000000                  mov qword   rax, 0                              ;A zero in rax indicates that printf receives standard parameters
+    98 00000083 48BF-                       mov         rdi, stringData
+    99 00000085 [0000000000000000] 
+   100 0000008D 48BE-                       mov         rsi, input3
+   101 0000008F [7300000000000000] 
+   102 00000097 E8(00000000)                call        _printf
+   103                                  
+   104                                  ;==== Grab input from Keyboard
+   105 0000009C B800000000                  mov qword   rax, 0                              ;A zero in rax indicates that printf receives standard parameters
+   106 000000A1 48BF-                       mov         rdi, floatData                      ;Tell scanf to accept a long float as the data input
+   107 000000A3 [B900000000000000] 
+   108 000000AB 6A00                        push qword  0                                   ;8 byes reserved. Need 10 bytes
+   109 000000AD 6A00                        push qword  0                                   ;Another 8 bytes reserved for a total of 16 bytes
+   110 000000AF 4889E6                      mov         rsi, rsp                            ;rsi now points to the 16 bytes we have open. (rsp = Stack Pointer)
+   111 000000B2 E8(00000000)                call        _scanf                               ;C now uses the scanf function
+   112                                  
+   113                                  ;==== Copy 10 byte number into Float space
+   114 000000B7 DB2C24                      fld tword  [rsp]                                ;Load Float space and push rsp into the float stack. (braquests de-reference)
+   115                                  
+   116                                  ;============ TEMP ==============
+   117                                  
+   118                                  ;============ Output ==============
+   119 000000BA B800000000                  mov qword   rax, 0
+   120 000000BF 48BF-                       mov         rdi, floatOutput
+   121 000000C1 [A500000000000000] 
+   122 000000C9 B801000000                  mov qword   rax, 1                              ;Important for floats??!
+   123 000000CE 6A00                        push qword  0                                   ;8 bytes reserved
+   124 000000D0 6A00                        push qword  0                                   ;16 bytes reserved
+   125 000000D2 DD1C24                      fstp qword [rsp]                                ;Pop the fp number from the FP stack into the storage at [rsp]
+   126 000000D5 E8(00000000)                call       _printf
+   127                                  
+   128                                  ;============ Restore Registers ============
+   129 000000DA 5E                          pop rsi
+   130 000000DB 5F                          pop rdi
+   131 000000DC 5D                          pop rbp                                         ;Restore base pointer
+   132                                  
+   133                                  ;==== Time to exit this function ====
+   134                                  ;Prepare to exit from this function
+   135 000000DD B801002000                  mov qword rax, 0x200001                                ;A zero in rax is the code indicating a successful execution.
+   136 000000E2 C3                          ret                                             ;ret pops the stack taking away 8 bytes
+   137                                  
+   138                                  ;==== End of function calcAndPrint ====
